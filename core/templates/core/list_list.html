@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Lists — Mailer{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Lists</h1>
+  <div class="d-flex gap-2">
+    <a href="{% url 'list_import' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-upload me-1"></i>Import</a>
+    <a href="{% url 'list_create' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>New list</a>
+  </div>
+</div>
+
+<div class="card table-card">
+  <div class="card-body p-0">
+    {% if lists %}
+    <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead><tr><th>Name</th><th>Description</th><th>Contacts</th><th>Created</th><th></th></tr></thead>
+      <tbody>
+      {% for l in lists %}
+        <tr>
+          <td><a href="{% url 'contact_list' %}?list={{ l.pk }}">{{ l.name }}</a></td>
+          <td>{{ l.description|default:"—" }}</td>
+          <td>{{ l.count }}</td>
+          <td>{{ l.created_at|date:"Y-m-d" }}</td>
+          <td class="text-end text-nowrap">
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'list_edit' l.pk %}"><i class="bi bi-pencil"></i></a>
+            <form method="post" action="{% url 'list_delete' l.pk %}" onsubmit="return confirm('Delete list &quot;{{ l.name|escapejs }}&quot;? Contacts are kept.')" class="d-inline">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}
+      <p class="p-4 text-body-secondary mb-0">No lists yet. Scrape some sites or import emails to create one.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}New scrape — Mailer{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">New scrape job</h1>
+
+<div class="card">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label">Name</label>
+        {{ form.name }}
+        <div class="form-text">Also becomes the contact list name for results.</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Sites</label>
+        {{ form.sites }}
+        <div class="form-text">One URL per line. Scheme optional (we'll add https://).</div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Max pages / site</label>
+          {{ form.max_pages }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Delay (seconds)</label>
+          {{ form.delay }}
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+          <div class="form-check">
+            {{ form.respect_robots }}
+            <label class="form-check-label" for="id_respect_robots">Respect robots.txt</label>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 d-flex gap-2">
+        <button class="btn btn-primary"><i class="bi bi-play-fill me-1"></i> Start scrape</button>
+        <a href="{% url 'scraper:job_list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

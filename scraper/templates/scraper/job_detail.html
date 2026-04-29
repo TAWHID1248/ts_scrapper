@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ job }} — Mailer{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="h3 mb-0">{{ job }}</h1>
+    <span class="pill pill-{{ job.status }}" id="status-pill">{{ job.get_status_display }}</span>
+  </div>
+  <a href="{% url 'scraper:job_list' %}" class="btn btn-outline-secondary btn-sm">Back</a>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-md-3">
+    <div class="card stat-card p-3"><div class="stat-label">Sites</div><div class="stat-value"><span id="sites-done">{{ job.sites_done }}</span> / <span id="sites-total">{{ job.total_sites }}</span></div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card stat-card p-3"><div class="stat-label">Emails found</div><div class="stat-value" id="emails-found">{{ job.emails_found }}</div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card stat-card p-3"><div class="stat-label">Max pages / site</div><div class="stat-value">{{ job.max_pages }}</div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card stat-card p-3"><div class="stat-label">Delay</div><div class="stat-value">{{ job.delay }}s</div></div>
+  </div>
+</div>
+
+<div class="mb-3">
+  <div class="progress" style="height: 10px;">
+    <div id="progress-bar" class="progress-bar" role="progressbar" style="width: {{ job.progress_pct }}%"></div>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-header bg-transparent"><strong>Log</strong></div>
+  <div class="card-body p-0">
+    <pre class="log mb-0" id="log">{{ job.log|default:"(no output yet)" }}</pre>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header bg-transparent"><strong>Input sites</strong></div>
+  <div class="card-body"><pre class="mb-0">{{ job.sites }}</pre></div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+(function() {
+  const jobId = {{ job.pk }};
+  let active = {{ job.is_active|yesno:"true,false" }};
+  if (!active) return;
+
+  async function refresh() {
+    try {
+      const r = await fetch(`/scraper/${jobId}/status/`);
+      if (!r.ok) return;
+      const d = await r.json();
+      document.getElementById('sites-done').textContent = d.sites_done;
+      document.getElementById('sites-total').textContent = d.total_sites;
+      document.getElementById('emails-found').textContent = d.emails_found;
+      document.getElementById('progress-bar').style.width = d.progress_pct + '%';
+      document.getElementById('log').textContent = d.log || '(no output yet)';
+      const pill = document.getElementById('status-pill');
+      pill.className = 'pill pill-' + d.status;
+      pill.textContent = d.status.charAt(0).toUpperCase() + d.status.slice(1);
+      if (!d.is_active) {
+        clearInterval(timer);
+      }
+    } catch (e) {}
+  }
+  const timer = setInterval(refresh, 2000);
+})();
+</script>
+{% endblock %}

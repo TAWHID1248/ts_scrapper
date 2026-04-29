@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Mailer{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">{{ title }}</h1>
+<div class="card">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label">Name (internal)</label>
+        {{ form.name }}
+        {% for e in form.name.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Template</label>
+          {{ form.template }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Contact list</label>
+          {{ form.contact_list }}
+        </div>
+      </div>
+      <hr class="my-4">
+      <h6 class="text-body-secondary">Sender</h6>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">From name</label>
+          {{ form.from_name }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">From email</label>
+          {{ form.from_email }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Reply-to (optional)</label>
+          {{ form.reply_to }}
+        </div>
+      </div>
+      <div class="mt-4 d-flex gap-2">
+        <button class="btn btn-primary">Save as draft</button>
+        <a href="{% url 'campaign_list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

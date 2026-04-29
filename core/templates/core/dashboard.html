@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Mailer{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">Dashboard</h1>
+  <div class="d-flex gap-2">
+    <a href="{% url 'scraper:job_create' %}" class="btn btn-primary"><i class="bi bi-search me-1"></i> New scrape</a>
+    <a href="{% url 'campaign_create' %}" class="btn btn-outline-primary"><i class="bi bi-send me-1"></i> New campaign</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card stat-card p-3">
+      <div class="stat-label">Contacts</div>
+      <div class="stat-value">{{ stats.total_contacts }}</div>
+      <small class="text-body-secondary">{{ stats.active_contacts }} active · {{ stats.suppressed_contacts }} suppressed</small>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card stat-card p-3">
+      <div class="stat-label">Lists</div>
+      <div class="stat-value">{{ stats.total_lists }}</div>
+      <small class="text-body-secondary">{{ stats.total_templates }} templates</small>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card stat-card p-3">
+      <div class="stat-label">Campaigns</div>
+      <div class="stat-value">{{ stats.total_campaigns }}</div>
+      <small class="text-body-secondary">{{ stats.scrape_jobs }} scrape job(s)</small>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card stat-card p-3">
+      <div class="stat-label">Emails sent</div>
+      <div class="stat-value">{{ stats.sent }}</div>
+      <small class="text-body-secondary">{{ stats.bounced }} bounced · {{ stats.unsubscribed }} unsub</small>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card p-3 table-card">
+      <div class="stat-label">Open rate</div>
+      <div class="stat-value">{{ stats.open_rate }}%</div>
+      <small class="text-body-secondary">{{ stats.opened }} of {{ stats.sent }} opened</small>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 table-card">
+      <div class="stat-label">Click rate</div>
+      <div class="stat-value">{{ stats.click_rate }}%</div>
+      <small class="text-body-secondary">{{ stats.clicked }} clicks</small>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 table-card">
+      <div class="stat-label">Unsub rate</div>
+      <div class="stat-value">{{ stats.unsub_rate }}%</div>
+      <small class="text-body-secondary">{{ stats.unsubscribed }} unsubscribed</small>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card table-card">
+      <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+        <strong>Recent campaigns</strong>
+        <a href="{% url 'campaign_list' %}" class="small">View all</a>
+      </div>
+      <div class="card-body p-0">
+        {% if recent_campaigns %}
+          <table class="table mb-0">
+            <thead><tr><th>Name</th><th>Status</th><th>Sent</th></tr></thead>
+            <tbody>
+            {% for c in recent_campaigns %}
+              <tr>
+                <td><a href="{% url 'campaign_detail' c.pk %}">{{ c.name }}</a></td>
+                <td><span class="pill pill-{{ c.status }}">{{ c.get_status_display }}</span></td>
+                <td>{{ c.sent_at|default:"—" }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="text-body-secondary p-3 mb-0">No campaigns yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card table-card">
+      <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+        <strong>Recent scrape jobs</strong>
+        <a href="{% url 'scraper:job_list' %}" class="small">View all</a>
+      </div>
+      <div class="card-body p-0">
+        {% if recent_jobs %}
+          <table class="table mb-0">
+            <thead><tr><th>Name</th><th>Status</th><th>Emails</th></tr></thead>
+            <tbody>
+            {% for j in recent_jobs %}
+              <tr>
+                <td><a href="{% url 'scraper:job_detail' j.pk %}">{{ j }}</a></td>
+                <td><span class="pill pill-{{ j.status }}">{{ j.get_status_display }}</span></td>
+                <td>{{ j.emails_found }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="text-body-secondary p-3 mb-0">No scrape jobs yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

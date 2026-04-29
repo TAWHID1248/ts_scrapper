@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Settings — Mailer{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Settings</h1>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header bg-transparent"><strong>Application</strong></div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="save_settings" value="1">
+
+          <div class="mb-3">
+            <label class="form-label">Public site URL</label>
+            {{ form.site_base_url }}
+            <div class="form-text">Used for tracking pixel, click and unsubscribe links inside sent emails.</div>
+          </div>
+
+          <hr class="my-4">
+          <h6 class="text-secondary text-uppercase small fw-bold">Sender defaults</h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">From name</label>
+              {{ form.default_from_name }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">From email</label>
+              {{ form.default_from_email }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Reply-to</label>
+              {{ form.default_reply_to }}
+            </div>
+          </div>
+
+          <hr class="my-4">
+          <h6 class="text-secondary text-uppercase small fw-bold">Email backend</h6>
+          <div class="mb-3">
+            <label class="form-label">Delivery method</label>
+            {{ form.email_backend }}
+            <div class="form-text">Use "Console" for local dry-runs (emails print to the server log). Switch to "SMTP" to actually deliver.</div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label">SMTP host</label>
+              {{ form.smtp_host }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Port</label>
+              {{ form.smtp_port }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Username</label>
+              {{ form.smtp_username }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Password</label>
+              {{ form.smtp_password }}
+            </div>
+            <div class="col-md-4">
+              <div class="form-check">
+                {{ form.smtp_use_tls }}
+                <label class="form-check-label" for="id_smtp_use_tls">Use TLS (STARTTLS)</label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check">
+                {{ form.smtp_use_ssl }}
+                <label class="form-check-label" for="id_smtp_use_ssl">Use SSL</label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Timeout (seconds)</label>
+              {{ form.smtp_timeout }}
+            </div>
+          </div>
+
+          <div class="mt-4 d-flex gap-2">
+            <button class="btn btn-primary"><i class="bi bi-save me-1"></i>Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header bg-transparent"><strong>Send test email</strong></div>
+      <div class="card-body">
+        <p class="text-body-secondary small">Uses the currently-saved settings. Save first if you just changed them.</p>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="send_test" value="1">
+          <label class="form-label">Send to</label>
+          {{ test_form.to_email }}
+          <button class="btn btn-outline-primary w-100 mt-3"><i class="bi bi-send me-1"></i>Send test</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header bg-transparent"><strong>Status</strong></div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex justify-content-between">
+          <span>Backend</span>
+          <span class="text-body-secondary">{{ app_settings.get_email_backend_display }}</span>
+        </li>
+        {% if app_settings.email_backend == 'smtp' %}
+        <li class="list-group-item d-flex justify-content-between">
+          <span>Host</span><span class="text-body-secondary">{{ app_settings.smtp_host|default:"—" }}:{{ app_settings.smtp_port }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between">
+          <span>Auth</span><span class="text-body-secondary">{{ app_settings.smtp_username|default:"(none)" }}</span>
+        </li>
+        {% endif %}
+        <li class="list-group-item d-flex justify-content-between">
+          <span>Updated</span><span class="text-body-secondary">{{ app_settings.updated_at|date:"Y-m-d H:i" }}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

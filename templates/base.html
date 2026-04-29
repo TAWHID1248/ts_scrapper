@@ -1,0 +1,181 @@
+{% load static %}<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Mailer{% endblock %}</title>
+  <script>
+    (function() {
+      try {
+        var stored = localStorage.getItem('mailer-theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = (stored === 'dark' || stored === 'light') ? stored : (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-bs-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <style>
+    :root { --sidebar-width: 240px; }
+    [data-bs-theme=light] {
+      --app-bg: #f6f7fb;
+      --sidebar-bg: #ffffff;
+      --sidebar-border: #e5e7eb;
+      --sidebar-text: #334155;
+      --sidebar-muted: #64748b;
+      --sidebar-hover: #f1f5f9;
+      --log-bg: #0f172a;
+      --log-text: #cbd5e1;
+    }
+    [data-bs-theme=dark] {
+      --app-bg: #0b1220;
+      --sidebar-bg: #0f172a;
+      --sidebar-border: #1e293b;
+      --sidebar-text: #cbd5e1;
+      --sidebar-muted: #64748b;
+      --sidebar-hover: #1e293b;
+      --log-bg: #020617;
+      --log-text: #cbd5e1;
+    }
+    body { background: var(--app-bg); }
+    /* Sidebar (shared by static + offcanvas) */
+    .sidebar { background: var(--sidebar-bg); border-right: 1px solid var(--sidebar-border); color: var(--sidebar-text); }
+    .sidebar .brand { color: var(--bs-body-color); font-weight: 600; padding: 1.1rem 1rem; font-size: 1.1rem; letter-spacing: .02em; }
+    .sidebar .brand i { color: #2563eb; }
+    .nav-items a { color: var(--sidebar-text); text-decoration: none; display: block; padding: .55rem .9rem; margin: .1rem 0; border-radius: .4rem; font-size: .95rem; }
+    .nav-items a:hover { background: var(--sidebar-hover); color: var(--bs-body-color); }
+    .nav-items a.active { background: #2563eb; color: #fff !important; }
+    .nav-items hr { border-color: var(--sidebar-border); margin: .75rem 0; }
+    .sidebar-static { min-height: 100vh; position: sticky; top: 0; }
+    /* Mobile header */
+    .mobile-header {
+      display: none;
+      background: var(--sidebar-bg);
+      border-bottom: 1px solid var(--sidebar-border);
+      padding: .6rem .9rem;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 1020;
+    }
+    .mobile-header .brand { font-weight: 600; font-size: 1rem; color: var(--bs-body-color); }
+    .mobile-header .brand i { color: #2563eb; }
+    @media (max-width: 767.98px) {
+      .sidebar-static { display: none !important; }
+      .mobile-header { display: flex !important; }
+      main { padding: 1rem !important; }
+    }
+    /* Offcanvas sidebar reuses the same .sidebar class */
+    .offcanvas.sidebar { --bs-offcanvas-width: var(--sidebar-width); }
+    .offcanvas .brand { color: var(--bs-body-color); }
+    /* Cards + shared UI */
+    .stat-card { border: 0 !important; border-left: 3px solid #2563eb !important; }
+    .stat-card .stat-value { font-size: 1.6rem; font-weight: 600; }
+    .stat-card .stat-label { color: var(--bs-secondary-color); font-size: .82rem; text-transform: uppercase; letter-spacing: .05em; }
+    pre.log { background: var(--log-bg); color: var(--log-text); padding: 1rem; border-radius: .4rem; max-height: 320px; overflow: auto; font-size: .82rem; }
+    .pill { font-size: .72rem; padding: .25rem .55rem; border-radius: 999px; text-transform: uppercase; letter-spacing: .05em; font-weight: 600; display: inline-block; }
+    .pill-pending  { background: rgba(100,116,139,.15); color: #475569; }
+    [data-bs-theme=dark] .pill-pending { color: #94a3b8; }
+    .pill-running, .pill-sending { background: rgba(37,99,235,.15); color: #2563eb; }
+    [data-bs-theme=dark] .pill-running, [data-bs-theme=dark] .pill-sending { color: #60a5fa; }
+    .pill-completed, .pill-sent { background: rgba(34,197,94,.15); color: #16a34a; }
+    [data-bs-theme=dark] .pill-completed, [data-bs-theme=dark] .pill-sent { color: #4ade80; }
+    .pill-failed   { background: rgba(239,68,68,.15); color: #dc2626; }
+    [data-bs-theme=dark] .pill-failed { color: #f87171; }
+    .pill-draft    { background: rgba(245,158,11,.15); color: #d97706; }
+    [data-bs-theme=dark] .pill-draft { color: #fbbf24; }
+    .table-card { border: 1px solid var(--bs-border-color); }
+    .theme-toggle .bi-moon-stars { display: inline-block; }
+    .theme-toggle .bi-sun { display: none; }
+    [data-bs-theme=dark] .theme-toggle .bi-moon-stars { display: none; }
+    [data-bs-theme=dark] .theme-toggle .bi-sun { display: inline-block; }
+    @media (max-width: 575.98px) {
+      h1.h3 { font-size: 1.25rem; }
+      .stat-card .stat-value { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Mobile top bar -->
+<div class="mobile-header">
+  <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-label="Open navigation">
+    <i class="bi bi-list fs-5"></i>
+  </button>
+  <span class="brand"><i class="bi bi-envelope-paper-fill"></i> Mailer</span>
+  <button class="btn btn-outline-secondary btn-sm theme-toggle" type="button" aria-label="Toggle theme">
+    <i class="bi bi-moon-stars"></i><i class="bi bi-sun"></i>
+  </button>
+</div>
+
+<!-- Offcanvas sidebar (mobile) -->
+<div class="offcanvas offcanvas-start sidebar" tabindex="-1" id="sidebarOffcanvas">
+  <div class="offcanvas-header border-bottom">
+    <span class="brand mb-0"><i class="bi bi-envelope-paper-fill"></i> Mailer</span>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body p-2">
+    {% include "partials/_nav.html" %}
+  </div>
+  <div class="p-3 border-top">
+    <button class="btn btn-sm btn-outline-secondary w-100 theme-toggle" type="button">
+      <i class="bi bi-moon-stars me-1"></i><i class="bi bi-sun me-1"></i>
+      <span class="theme-label-dark">Dark mode</span><span class="theme-label-light d-none">Light mode</span>
+    </button>
+  </div>
+</div>
+
+<div class="container-fluid">
+  <div class="row g-0">
+    <aside class="col-md-3 col-lg-2 sidebar sidebar-static d-none d-md-block">
+      <span class="brand d-block"><i class="bi bi-envelope-paper-fill"></i> Mailer</span>
+      <div class="px-2 pb-2">
+        {% include "partials/_nav.html" %}
+      </div>
+      <div class="p-3">
+        <button class="btn btn-sm btn-outline-secondary w-100 theme-toggle" type="button">
+          <i class="bi bi-moon-stars me-1"></i><i class="bi bi-sun me-1"></i>
+          <span class="theme-label-dark">Dark mode</span><span class="theme-label-light d-none">Light mode</span>
+        </button>
+      </div>
+    </aside>
+    <main class="col-12 col-md-9 col-lg-10 p-3 p-md-4">
+      {% if messages %}
+        <div>
+          {% for m in messages %}
+            <div class="alert alert-{{ m.tags|default:'info' }} alert-dismissible fade show" role="alert">
+              {{ m }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  (function() {
+    function syncLabels() {
+      var dark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+      document.querySelectorAll('.theme-label-dark').forEach(function(el) { el.classList.toggle('d-none', dark); });
+      document.querySelectorAll('.theme-label-light').forEach(function(el) { el.classList.toggle('d-none', !dark); });
+    }
+    function toggle() {
+      var cur = document.documentElement.getAttribute('data-bs-theme');
+      var next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-bs-theme', next);
+      try { localStorage.setItem('mailer-theme', next); } catch (e) {}
+      syncLabels();
+    }
+    document.querySelectorAll('.theme-toggle').forEach(function(btn) {
+      btn.addEventListener('click', toggle);
+    });
+    syncLabels();
+  })();
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

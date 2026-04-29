@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Campaigns — Mailer{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Campaigns</h1>
+  <a href="{% url 'campaign_create' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>New campaign</a>
+</div>
+
+<div class="card table-card">
+  <div class="card-body p-0">
+    {% if campaigns %}
+    <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead><tr><th>Name</th><th>List</th><th>Template</th><th>Status</th><th>Sent</th><th></th></tr></thead>
+      <tbody>
+      {% for c in campaigns %}
+        <tr>
+          <td><a href="{% url 'campaign_detail' c.pk %}">{{ c.name }}</a></td>
+          <td>{{ c.contact_list.name }}</td>
+          <td>{{ c.template.name }}</td>
+          <td><span class="pill pill-{{ c.status }}">{{ c.get_status_display }}</span></td>
+          <td>{{ c.sent_at|default:"—" }}</td>
+          <td class="text-end text-nowrap">
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'campaign_detail' c.pk %}"><i class="bi bi-eye"></i></a>
+            {% if c.status == 'draft' %}
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'campaign_edit' c.pk %}"><i class="bi bi-pencil"></i></a>
+            {% endif %}
+            <form method="post" action="{% url 'campaign_delete' c.pk %}" onsubmit="return confirm('Delete campaign &quot;{{ c.name|escapejs }}&quot; and all its results?')" class="d-inline">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}
+      <div class="p-4 text-center text-body-secondary">
+        <i class="bi bi-send fs-1"></i>
+        <p class="mt-2 mb-3">No campaigns yet.</p>
+        <a href="{% url 'campaign_create' %}" class="btn btn-primary">Create your first campaign</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

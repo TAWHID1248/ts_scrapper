@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Edit contact — Mailer{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Edit contact</h1>
+<div class="card">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-12">
+          <label class="form-label">Email</label>
+          {{ form.email }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">First name</label>
+          {{ form.first_name }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Last name</label>
+          {{ form.last_name }}
+        </div>
+        <div class="col-md-12">
+          <label class="form-label">Tags</label>
+          {{ form.tags }}
+          <div class="form-text">Comma-separated.</div>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label">Lists</label>
+          {{ form.lists }}
+          <div class="form-text">Hold Cmd/Ctrl to select multiple.</div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-check mt-4">
+            {{ form.is_suppressed }}
+            <label class="form-check-label" for="id_is_suppressed">Suppressed</label>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <label class="form-label">Reason</label>
+          {{ form.suppressed_reason }}
+        </div>
+      </div>
+      <div class="mt-4 d-flex gap-2">
+        <button class="btn btn-primary">Save</button>
+        <a href="{% url 'contact_list' %}" class="btn btn-outline-secondary">Cancel</a>
+        <form method="post" action="{% url 'contact_delete' contact.pk %}" onsubmit="return confirm('Delete {{ contact.email }}?')" class="ms-auto">
+          {% csrf_token %}
+          <button class="btn btn-outline-danger"><i class="bi bi-trash"></i> Delete</button>
+        </form>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

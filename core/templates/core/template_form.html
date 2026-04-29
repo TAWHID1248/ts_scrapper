@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Mailer{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">{{ title }}</h1>
+  {% if template %}
+    <a href="{% url 'template_test_send' template.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-send me-1"></i>Send test</a>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label">Name</label>
+        {{ form.name }}
+        {% for e in form.name.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Subject</label>
+        {{ form.subject }}
+        <div class="form-text">Supports variables: <code>{% verbatim %}{{ first_name }}{% endverbatim %}</code>, <code>{% verbatim %}{{ email }}{% endverbatim %}</code>.</div>
+        {% for e in form.subject.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">HTML body</label>
+        {{ form.body_html }}
+        <div class="form-text">Unsubscribe footer + open pixel are added automatically. Use <code>{% verbatim %}{{ unsubscribe_url }}{% endverbatim %}</code> for extra links if you want.</div>
+        {% for e in form.body_html.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Plain-text body (optional)</label>
+        {{ form.body_text }}
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-primary">Save</button>
+        <a href="{% url 'template_list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

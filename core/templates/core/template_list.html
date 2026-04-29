@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Templates — Mailer{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Email templates</h1>
+  <a href="{% url 'template_create' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>New template</a>
+</div>
+
+<div class="card table-card">
+  <div class="card-body p-0">
+    {% if templates %}
+    <div class="table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead><tr><th>Name</th><th>Subject</th><th>Updated</th><th></th></tr></thead>
+      <tbody>
+      {% for t in templates %}
+        <tr>
+          <td><a href="{% url 'template_edit' t.pk %}">{{ t.name }}</a></td>
+          <td>{{ t.subject }}</td>
+          <td><small class="text-body-secondary">{{ t.updated_at|timesince }} ago</small></td>
+          <td class="text-end text-nowrap">
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'template_test_send' t.pk %}"><i class="bi bi-send"></i></a>
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'template_edit' t.pk %}"><i class="bi bi-pencil"></i></a>
+            <form method="post" action="{% url 'template_delete' t.pk %}" onsubmit="return confirm('Delete template &quot;{{ t.name|escapejs }}&quot;?')" class="d-inline">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}
+      <p class="p-4 text-body-secondary mb-0">No templates yet. <a href="{% url 'template_create' %}">Create one</a>.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

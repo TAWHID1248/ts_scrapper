@@ -1,0 +1,10 @@
+<nav class="nav-items">
+  <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+  <a href="{% url 'scraper:job_list' %}" class="{% if '/scraper' in request.path %}active{% endif %}"><i class="bi bi-search me-2"></i>Scrape jobs</a>
+  <a href="{% url 'contact_list' %}" class="{% if '/contacts' in request.path %}active{% endif %}"><i class="bi bi-people-fill me-2"></i>Contacts</a>
+  <a href="{% url 'list_list' %}" class="{% if '/lists' in request.path %}active{% endif %}"><i class="bi bi-collection me-2"></i>Lists</a>
+  <a href="{% url 'template_list' %}" class="{% if '/templates' in request.path %}active{% endif %}"><i class="bi bi-file-earmark-text me-2"></i>Templates</a>
+  <a href="{% url 'campaign_list' %}" class="{% if '/campaigns' in request.path %}active{% endif %}"><i class="bi bi-send-fill me-2"></i>Campaigns</a>
+  <hr>
+  <a href="{% url 'settings' %}" class="{% if request.resolver_match.url_name == 'settings' %}active{% endif %}"><i class="bi bi-sliders me-2"></i>Settings</a>
+</nav>

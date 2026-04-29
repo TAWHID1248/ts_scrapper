@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Send test — {{ template.name }}{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Send test: {{ template.name }}</h1>
+
+<div class="card">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label">Send to</label>
+        {{ form.to_email }}
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">From name</label>
+          {{ form.from_name }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">From email</label>
+          {{ form.from_email }}
+        </div>
+      </div>
+      <div class="mt-4 d-flex gap-2">
+        <button class="btn btn-primary"><i class="bi bi-send me-1"></i>Send test</button>
+        <a href="{% url 'template_edit' template.pk %}" class="btn btn-outline-secondary">Back</a>
+      </div>
+      <p class="text-body-secondary mt-3 mb-0">
+        <small>Delivery uses whatever is configured in <a href="{% url 'settings' %}">Settings</a>. Default is <code>console</code> (prints to server log).</small>
+      </p>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Scrape jobs — Mailer{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">Scrape jobs</h1>
+  <a href="{% url 'scraper:job_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> New scrape</a>
+</div>
+
+<div class="card table-card">
+  <div class="card-body p-0">
+    {% if jobs %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead><tr><th>Name</th><th>Status</th><th>Progress</th><th>Emails</th><th>Created</th><th></th></tr></thead>
+        <tbody>
+        {% for j in jobs %}
+          <tr>
+            <td><a href="{% url 'scraper:job_detail' j.pk %}">{{ j }}</a></td>
+            <td><span class="pill pill-{{ j.status }}">{{ j.get_status_display }}</span></td>
+            <td style="min-width: 180px;">
+              <div class="progress" style="height: 6px;">
+                <div class="progress-bar" role="progressbar" style="width: {{ j.progress_pct }}%"></div>
+              </div>
+              <small class="text-body-secondary">{{ j.sites_done }} / {{ j.total_sites }} sites</small>
+            </td>
+            <td>{{ j.emails_found }}</td>
+            <td><small class="text-body-secondary">{{ j.created_at|timesince }} ago</small></td>
+            <td class="text-end text-nowrap">
+              <a class="btn btn-sm btn-outline-secondary" href="{% url 'scraper:job_detail' j.pk %}">Open</a>
+              {% if not j.is_active %}
+                <form method="post" action="{% url 'scraper:job_rerun' j.pk %}" class="d-inline">
+                  {% csrf_token %}
+                  <button class="btn btn-sm btn-outline-primary" title="Re-run"><i class="bi bi-arrow-clockwise"></i></button>
+                </form>
+                <form method="post" action="{% url 'scraper:job_delete' j.pk %}" class="d-inline" onsubmit="return confirm('Delete this job?')">
+                  {% csrf_token %}
+                  <button class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="p-4 text-center text-body-secondary">
+        <i class="bi bi-search fs-1"></i>
+        <p class="mt-2 mb-3">No scrape jobs yet.</p>
+        <a href="{% url 'scraper:job_create' %}" class="btn btn-primary">Start your first scrape</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
