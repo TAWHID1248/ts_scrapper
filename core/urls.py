@@ -6,6 +6,7 @@ urlpatterns = [
     path('settings/', views.settings_view, name='settings'),
 
     path('contacts/', views.contact_list, name='contact_list'),
+    path('contacts/export.csv', views.contact_export, name='contact_export'),
     path('contacts/<int:pk>/edit/', views.contact_edit, name='contact_edit'),
     path('contacts/<int:pk>/delete/', views.contact_delete, name='contact_delete'),
 

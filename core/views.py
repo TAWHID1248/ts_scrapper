@@ -1,7 +1,10 @@
+import csv
+
 from django.contrib import messages
 from django.db.models import Count, Q
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
 from scraper.models import ScrapeJob
 
@@ -135,6 +138,50 @@ def contact_delete(request, pk):
     Contact.objects.filter(pk=pk).delete()
     messages.success(request, 'Contact deleted.')
     return redirect('contact_list')
+
+
+def contact_export(request):
+    q = request.GET.get('q', '').strip()
+    list_id = request.GET.get('list', '').strip()
+    suppressed = request.GET.get('suppressed', '').strip()
+
+    contacts = Contact.objects.all()
+    if q:
+        contacts = contacts.filter(
+            Q(email__icontains=q) | Q(first_name__icontains=q) | Q(last_name__icontains=q)
+        )
+    if list_id.isdigit():
+        contacts = contacts.filter(lists__id=int(list_id))
+    if suppressed == '1':
+        contacts = contacts.filter(is_suppressed=True)
+    elif suppressed == '0':
+        contacts = contacts.filter(is_suppressed=False)
+    contacts = contacts.prefetch_related('lists').order_by('email')
+
+    stamp = timezone.now().strftime('%Y%m%d-%H%M%S')
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = f'attachment; filename="contacts-{stamp}.csv"'
+    response.write('﻿')
+
+    writer = csv.writer(response)
+    writer.writerow([
+        'email', 'first_name', 'last_name', 'source_site', 'source_page',
+        'tags', 'lists', 'is_suppressed', 'suppressed_reason', 'created_at',
+    ])
+    for c in contacts.iterator(chunk_size=1000):
+        writer.writerow([
+            c.email,
+            c.first_name,
+            c.last_name,
+            c.source_site,
+            c.source_page,
+            c.tags,
+            '; '.join(l.name for l in c.lists.all()),
+            'yes' if c.is_suppressed else 'no',
+            c.suppressed_reason,
+            c.created_at.isoformat(timespec='seconds'),
+        ])
+    return response
 
 
 def contact_edit(request, pk):

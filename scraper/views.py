@@ -2,6 +2,8 @@ from django.contrib import messages
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
+from core.models import ContactList
+
 from .forms import ScrapeJobForm
 from .models import ScrapeJob
 from .tasks import start_scrape_job
@@ -27,7 +29,12 @@ def job_create(request):
 
 def job_detail(request, pk):
     job = get_object_or_404(ScrapeJob, pk=pk)
-    return render(request, 'scraper/job_detail.html', {'job': job})
+    list_name = job.name or f'Scrape Job #{job.pk}'
+    contact_list = ContactList.objects.filter(name=list_name).first()
+    return render(request, 'scraper/job_detail.html', {
+        'job': job,
+        'contact_list': contact_list,
+    })
 
 
 def job_delete(request, pk):
