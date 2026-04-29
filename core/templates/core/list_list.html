@@ -23,6 +23,7 @@
           <td>{{ l.count }}</td>
           <td>{{ l.created_at|date:"Y-m-d" }}</td>
           <td class="text-end text-nowrap">
+            <a class="btn btn-sm btn-outline-success" href="{% url 'contact_export' %}?list={{ l.pk }}" title="Download emails as CSV"><i class="bi bi-download"></i></a>
             <a class="btn btn-sm btn-outline-secondary" href="{% url 'list_edit' l.pk %}"><i class="bi bi-pencil"></i></a>
             <form method="post" action="{% url 'list_delete' l.pk %}" onsubmit="return confirm('Delete list &quot;{{ l.name|escapejs }}&quot;? Contacts are kept.')" class="d-inline">
               {% csrf_token %}
